@@ -18,11 +18,9 @@ public class ImageProcessor {
             int height) {
 
         try {
-            ByteArrayInputStream input =
-                    new ByteArrayInputStream(image.getData());
+            ByteArrayInputStream input = new ByteArrayInputStream(image.getData());
 
-            ByteArrayOutputStream output =
-                    new ByteArrayOutputStream();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
 
             Thumbnails.of(input)
                     .size(width, height)

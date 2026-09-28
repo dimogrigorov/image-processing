@@ -21,13 +21,18 @@ public class ImageController {
 
     @GetMapping("/process")
     public ResponseEntity<byte[]> process(
-            @RequestParam String url) {
+            @RequestParam String url,
+            @RequestParam(required = false) Integer width,
+            @RequestParam(required = false) Integer height) {
 
-        ProcessedImage image =
-                imageProcessingService.process(url);
+        ProcessedImage image = imageProcessingService.process(
+                url,
+                width,
+                height);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(image.getContentType()))
+                .contentType(MediaType.parseMediaType(
+                        image.getContentType()))
                 .body(image.getData());
     }
 }

@@ -25,8 +25,7 @@ public class ImageDownloadService {
                     .retrieve()
                     .toEntity(byte[].class);
 
-            MediaType contentType =
-                    response.getHeaders().getContentType();
+            MediaType contentType = response.getHeaders().getContentType();
 
             if (contentType == null) {
                 throw new ImageDownloadException(
