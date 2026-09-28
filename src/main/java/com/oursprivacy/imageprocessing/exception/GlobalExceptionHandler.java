@@ -25,4 +25,13 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                                 .body(exception.getMessage());
         }
+
+        @ExceptionHandler(InvalidProcessingOptionsException.class)
+        public ResponseEntity<String> handleInvalidProcessingOptions(
+                        InvalidProcessingOptionsException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(exception.getMessage());
+        }
 }

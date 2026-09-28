@@ -1,5 +1,6 @@
 package com.oursprivacy.imageprocessing.service;
 
+import com.oursprivacy.imageprocessing.model.ImageProcessingOptions;
 import com.oursprivacy.imageprocessing.model.ProcessedImage;
 
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,8 @@ class ImageProcessingServiceTest {
 
                 when(downloadService.download(url))
                                 .thenReturn(expected);
-
-                ProcessedImage actual = service.process(url, null, null);
+                ImageProcessingOptions ipo = new ImageProcessingOptions(url, null, null, url)
+                ProcessedImage actual = service.process(ipo);
 
                 assertSame(expected, actual);
 
@@ -66,10 +67,9 @@ class ImageProcessingServiceTest {
                                 original, 500, 300))
                                 .thenReturn(resized);
 
-                ProcessedImage actual = service.process(
-                                url,
-                                500,
-                                300);
+                ImageProcessingOptions ipo = new ImageProcessingOptions(url, 500, 300, null)
+
+                ProcessedImage actual = service.process(ipo);
 
                 assertSame(resized, actual);
 
@@ -77,5 +77,49 @@ class ImageProcessingServiceTest {
 
                 verify(imageProcessor)
                                 .resize(original, 500, 300);
+        }
+
+        @Test
+        void shouldResizeAndCropWhenCropIsFill() {
+
+                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+
+                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+
+                ImageProcessingService service = new ImageProcessingService(
+                                downloadService,
+                                imageProcessor);
+
+                String url = "https://example.com/image.jpg";
+
+                ProcessedImage original = new ProcessedImage(
+                                new byte[] { 1, 2, 3 },
+                                "image/jpeg");
+
+                ProcessedImage cropped = new ProcessedImage(
+                                new byte[] { 4, 5, 6 },
+                                "image/jpeg");
+
+                when(downloadService.download(url))
+                                .thenReturn(original);
+
+                when(imageProcessor.resizeAndCrop(
+                                original,
+                                500,
+                                300))
+                                .thenReturn(cropped);
+
+                ImageProcessingOptions options = new ImageProcessingOptions(
+                                url,
+                                500,
+                                300,
+                                "fill");
+
+                ProcessedImage actual = service.process(options);
+
+                assertSame(cropped, actual);
+
+                verify(imageProcessor)
+                                .resizeAndCrop(original, 500, 300);
         }
 }

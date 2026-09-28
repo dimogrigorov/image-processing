@@ -1,5 +1,6 @@
 package com.oursprivacy.imageprocessing.controller;
 
+import com.oursprivacy.imageprocessing.model.ImageProcessingOptions;
 import com.oursprivacy.imageprocessing.model.ProcessedImage;
 import com.oursprivacy.imageprocessing.service.ImageProcessingService;
 import org.springframework.http.MediaType;
@@ -13,26 +14,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class ImageController {
 
-    private final ImageProcessingService imageProcessingService;
+        private final ImageProcessingService imageProcessingService;
 
-    public ImageController(ImageProcessingService imageProcessingService) {
-        this.imageProcessingService = imageProcessingService;
-    }
+        public ImageController(ImageProcessingService imageProcessingService) {
+                this.imageProcessingService = imageProcessingService;
+        }
 
-    @GetMapping("/process")
-    public ResponseEntity<byte[]> process(
-            @RequestParam String url,
-            @RequestParam(required = false) Integer width,
-            @RequestParam(required = false) Integer height) {
+        @GetMapping("/process")
+        public ResponseEntity<byte[]> process(
+                        @RequestParam String url,
+                        @RequestParam(required = false) Integer width,
+                        @RequestParam(required = false) Integer height,
+                        @RequestParam(required = false) String crop) {
 
-        ProcessedImage image = imageProcessingService.process(
-                url,
-                width,
-                height);
+                ImageProcessingOptions options = new ImageProcessingOptions(
+                                url,
+                                width,
+                                height,
+                                crop);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(
-                        image.getContentType()))
-                .body(image.getData());
-    }
+                ProcessedImage image = imageProcessingService.process(options);
+
+                return ResponseEntity.ok()
+                                .contentType(MediaType.parseMediaType(
+                                                image.getContentType()))
+                                .body(image.getData());
+        }
 }

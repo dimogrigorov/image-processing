@@ -3,6 +3,8 @@ package com.oursprivacy.imageprocessing.service;
 import com.oursprivacy.imageprocessing.exception.ImageProcessingException;
 import com.oursprivacy.imageprocessing.model.ProcessedImage;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
+
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +36,32 @@ public class ImageProcessor {
         } catch (IOException e) {
             throw new ImageProcessingException(
                     "Failed to resize image", e);
+        }
+    }
+
+    public ProcessedImage resizeAndCrop(
+            ProcessedImage image,
+            int width,
+            int height) {
+
+        try {
+            ByteArrayInputStream input = new ByteArrayInputStream(image.getData());
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+            Thumbnails.of(input)
+                    .size(width, height)
+                    .crop(Positions.CENTER)
+                    .outputFormat(getFormat(image.getContentType()))
+                    .toOutputStream(output);
+
+            return new ProcessedImage(
+                    output.toByteArray(),
+                    image.getContentType());
+
+        } catch (IOException e) {
+            throw new ImageProcessingException(
+                    "Failed to resize and crop image", e);
         }
     }
 
