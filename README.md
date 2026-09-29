@@ -6,8 +6,14 @@ The API supports image resizing, cropping, format conversion, and output quality
 
 ## Requirements
 
+For local development:
+
 - Java 21
 - Maven 3.8+
+
+For containerized execution:
+
+- Docker
 
 ## Running the Application
 
@@ -23,6 +29,48 @@ The application starts on:
 ```text
 http://localhost:8080
 ```
+
+## Running with Docker
+
+First build the application JAR:
+
+```bash
+mvn clean package
+```
+
+Build the Docker image:
+
+```bash
+docker build -t image-processing-service .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 8080:8080 image-processing-service
+```
+
+The API is then available at:
+
+```text
+http://localhost:8080
+```
+
+Test the running container:
+
+```bash
+curl \
+"http://localhost:8080/process?url=https://fileinfo.com/img/ss/xl/jpg_44-2.jpg&width=500&height=300&crop=fill" \
+-o docker-test.jpg
+```
+
+Verify the generated image:
+
+```bash
+file docker-test.jpg
+```
+
+Stop the container with `Ctrl+C`.
 
 ## API
 
@@ -49,7 +97,7 @@ GET /process
 
 ## Examples
 
-### Download an image without transformation
+### Download an Image Without Transformation
 
 ```bash
 curl \
@@ -57,7 +105,7 @@ curl \
 -o image.jpg
 ```
 
-### Resize an image
+### Resize an Image
 
 ```bash
 curl \
@@ -69,7 +117,7 @@ Resize preserves the original aspect ratio. The resulting image fits within the 
 
 For example, a `1200x600` image resized to `500x300` results in `500x250`.
 
-### Resize and crop
+### Resize and Crop
 
 ```bash
 curl \
@@ -79,7 +127,7 @@ curl \
 
 `crop=fill` preserves the aspect ratio while cropping the center of the image to produce the exact requested dimensions.
 
-### Convert image format
+### Convert Image Format
 
 ```bash
 curl \
@@ -87,7 +135,7 @@ curl \
 -o converted.jpg
 ```
 
-### Combined processing
+### Combined Processing
 
 ```bash
 curl \
@@ -120,7 +168,7 @@ Examples of invalid requests include:
 
 ## Design
 
-The application is separated into several responsibilities:
+The application separates HTTP handling, orchestration, downloading, and image manipulation:
 
 ```text
 ImageController
@@ -139,7 +187,7 @@ Handles the HTTP API and converts request parameters into processing options.
 
 ### ImageProcessingService
 
-Coordinates validation, downloading, and image processing.
+Validates processing options and coordinates image downloading and processing.
 
 ### ImageDownloadService
 
@@ -147,7 +195,7 @@ Retrieves remote image data and validates the remote content type.
 
 ### ImageProcessor
 
-Performs resizing, cropping, format conversion, and quality configuration.
+Performs resizing, cropping, format conversion, and output quality configuration.
 
 Image manipulation is implemented using Thumbnailator, with additional ImageIO support for WebP.
 
@@ -169,7 +217,7 @@ The image processing tests verify actual output dimensions and image format rath
 
 ## Supported Formats
 
-Input/output processing currently supports:
+The service currently supports:
 
 - JPEG
 - PNG
@@ -185,9 +233,4 @@ Input/output processing currently supports:
 - JUnit 5
 - Mockito
 - Maven
-
-## Limitations
-
-The service processes images in memory and is intended as a demonstration implementation.
-
-For a production deployment, additional safeguards such as download size limits, connection/read timeouts, SSRF protection, caching, rate limiting, and resource limits should be considered.
+- Docker
