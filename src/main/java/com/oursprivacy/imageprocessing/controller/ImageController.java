@@ -25,13 +25,17 @@ public class ImageController {
                         @RequestParam String url,
                         @RequestParam(required = false) Integer width,
                         @RequestParam(required = false) Integer height,
-                        @RequestParam(required = false) String crop) {
+                        @RequestParam(required = false) String crop,
+                        @RequestParam(required = false) String format,
+                        @RequestParam(required = false) Integer quality) {
 
                 ImageProcessingOptions options = new ImageProcessingOptions(
                                 url,
                                 width,
                                 height,
-                                crop);
+                                crop, 
+                                format, 
+                                quality);
 
                 ProcessedImage image = imageProcessingService.process(options);
 

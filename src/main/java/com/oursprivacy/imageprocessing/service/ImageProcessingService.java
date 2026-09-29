@@ -23,24 +23,25 @@ public class ImageProcessingService {
 
         validate(options);
 
-        ProcessedImage image = imageDownloadService.download(options.getUrl());
+        ProcessedImage original = imageDownloadService.download(options.getUrl());
+        boolean processingRequested = options.getWidth() != null ||
+                options.getFormat() != null ||
+                options.getQuality() != null ||
+                options.getCrop() != null;
 
-        if (options.getWidth() != null) {
-
-            if ("fill".equalsIgnoreCase(options.getCrop())) {
-                image = imageProcessor.resizeAndCrop(
-                        image,
-                        options.getWidth(),
-                        options.getHeight());
-            } else {
-                image = imageProcessor.resize(
-                        image,
-                        options.getWidth(),
-                        options.getHeight());
-            }
+        if (!processingRequested) {
+            return original;
         }
+        
+        original = imageProcessor.process(
+                original,
+                options.getWidth(),
+                options.getHeight(),
+                options.getCrop(),
+                options.getFormat(),
+                options.getQuality());
 
-        return image;
+        return original;
     }
 
     private void validate(ImageProcessingOptions options) {
@@ -78,6 +79,35 @@ public class ImageProcessingService {
         if (options.getCrop() != null && !widthProvided) {
             throw new InvalidProcessingOptionsException(
                     "Crop requires width and height");
+        }
+
+        if (options.getQuality() != null &&
+                (options.getQuality() < 1 ||
+                        options.getQuality() > 100)) {
+
+            throw new InvalidProcessingOptionsException(
+                    "Quality must be between 1 and 100");
+        }
+
+        if (options.getFormat() != null) {
+
+            String format = options.getFormat().toLowerCase();
+
+            if (!format.equals("jpeg") &&
+                    !format.equals("jpg") &&
+                    !format.equals("png") &&
+                    !format.equals("webp")) {
+
+                throw new InvalidProcessingOptionsException(
+                        "Unsupported format: " + options.getFormat());
+            }
+        }
+
+        if (options.getQuality() != null &&
+                options.getFormat() == null) {
+
+            throw new InvalidProcessingOptionsException(
+                    "Quality requires an output format");
         }
     }
 }

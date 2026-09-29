@@ -5,33 +5,39 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.oursprivacy.imageprocessing.model.ApiError;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
         @ExceptionHandler(ImageDownloadException.class)
-        public ResponseEntity<String> handleImageDownloadException(
+        public ResponseEntity<ApiError> handleImageDownloadException(
                         ImageDownloadException exception) {
 
+                ApiError error = new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), exception.getMessage());
+
                 return ResponseEntity
-                                .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                                .body(exception.getMessage());
+                                .status(error.getStatus())
+                                .body(error);
         }
 
         @ExceptionHandler(ImageProcessingException.class)
-        public ResponseEntity<String> handleImageProcessingException(
+        public ResponseEntity<ApiError> handleImageProcessingException(
                         ImageProcessingException exception) {
 
+                ApiError error = new ApiError(HttpStatus.UNPROCESSABLE_ENTITY.value(), exception.getMessage());
                 return ResponseEntity
-                                .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                                .body(exception.getMessage());
+                                .status(error.getStatus())
+                                .body(error);
         }
 
         @ExceptionHandler(InvalidProcessingOptionsException.class)
-        public ResponseEntity<String> handleInvalidProcessingOptions(
+        public ResponseEntity<ApiError> handleInvalidProcessingOptions(
                         InvalidProcessingOptionsException exception) {
+                ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
 
                 return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(exception.getMessage());
+                                .status(error.getStatus())
+                                .body(error);
         }
 }

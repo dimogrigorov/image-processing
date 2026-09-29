@@ -31,7 +31,7 @@ class ImageProcessingServiceTest {
 
                 when(downloadService.download(url))
                                 .thenReturn(expected);
-                ImageProcessingOptions ipo = new ImageProcessingOptions(url, null, null, url)
+                ImageProcessingOptions ipo = new ImageProcessingOptions(url, null, null, null, null, null);
                 ProcessedImage actual = service.process(ipo);
 
                 assertSame(expected, actual);
@@ -63,11 +63,11 @@ class ImageProcessingServiceTest {
                 when(downloadService.download(url))
                                 .thenReturn(original);
 
-                when(imageProcessor.resize(
-                                original, 500, 300))
+                when(imageProcessor.process(
+                                original, 500, 300, url, url, null))
                                 .thenReturn(resized);
 
-                ImageProcessingOptions ipo = new ImageProcessingOptions(url, 500, 300, null)
+                ImageProcessingOptions ipo = new ImageProcessingOptions(url, 500, 300, null, null, null);
 
                 ProcessedImage actual = service.process(ipo);
 
@@ -76,7 +76,7 @@ class ImageProcessingServiceTest {
                 verify(downloadService).download(url);
 
                 verify(imageProcessor)
-                                .resize(original, 500, 300);
+                                .process(original, 500, 300, url, url, null);
         }
 
         @Test
@@ -103,23 +103,77 @@ class ImageProcessingServiceTest {
                 when(downloadService.download(url))
                                 .thenReturn(original);
 
-                when(imageProcessor.resizeAndCrop(
+                when(imageProcessor.process(
                                 original,
                                 500,
-                                300))
+                                300, url, url, null))
                                 .thenReturn(cropped);
 
                 ImageProcessingOptions options = new ImageProcessingOptions(
                                 url,
                                 500,
                                 300,
-                                "fill");
+                                "fill", null, null);
 
                 ProcessedImage actual = service.process(options);
 
                 assertSame(cropped, actual);
 
                 verify(imageProcessor)
-                                .resizeAndCrop(original, 500, 300);
+                                .process(original, 500, 300, url, url, null);
+        }
+
+        @Test
+        void shouldConvertImageFormat() {
+
+                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+
+                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+
+                ImageProcessingService service = new ImageProcessingService(
+                                downloadService,
+                                imageProcessor);
+
+                String url = "https://example.com/image.png";
+
+                ProcessedImage original = new ProcessedImage(
+                                new byte[] { 1, 2, 3 },
+                                "image/png");
+
+                ProcessedImage converted = new ProcessedImage(
+                                new byte[] { 4, 5, 6 },
+                                "image/jpeg");
+
+                when(downloadService.download(url))
+                                .thenReturn(original);
+
+                when(imageProcessor.process(
+                                original,
+                                null,
+                                null,
+                                null,
+                                "jpeg",
+                                80))
+                                .thenReturn(converted);
+
+                ImageProcessingOptions options = new ImageProcessingOptions(
+                                url,
+                                null,
+                                null,
+                                null,
+                                "jpeg",
+                                80);
+
+                ProcessedImage actual = service.process(options);
+
+                assertSame(converted, actual);
+
+                verify(imageProcessor).process(
+                                original,
+                                null,
+                                null,
+                                null,
+                                "jpeg",
+                                80);
         }
 }
