@@ -12,168 +12,233 @@ import static org.mockito.Mockito.when;
 
 class ImageProcessingServiceTest {
 
-        @Test
-        void shouldReturnOriginalImageWhenNoResizeRequested() {
+    @Test
+    void shouldReturnOriginalImageWhenNoProcessingRequested() {
 
-                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+        ImageDownloadService downloadService =
+                mock(ImageDownloadService.class);
 
-                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+        ImageProcessor imageProcessor =
+                mock(ImageProcessor.class);
 
-                ImageProcessingService service = new ImageProcessingService(
-                                downloadService,
-                                imageProcessor);
+        ImageProcessingService service =
+                new ImageProcessingService(
+                        downloadService,
+                        imageProcessor);
 
-                String url = "https://example.com/image.jpg";
+        String url = "https://example.com/image.jpg";
 
-                ProcessedImage expected = new ProcessedImage(
-                                new byte[] { 1, 2, 3 },
-                                "image/jpeg");
+        ProcessedImage expected =
+                new ProcessedImage(
+                        new byte[]{1, 2, 3},
+                        "image/jpeg");
 
-                when(downloadService.download(url))
-                                .thenReturn(expected);
-                ImageProcessingOptions ipo = new ImageProcessingOptions(url, null, null, null, null, null);
-                ProcessedImage actual = service.process(ipo);
+        when(downloadService.download(url))
+                .thenReturn(expected);
 
-                assertSame(expected, actual);
+        ImageProcessingOptions options =
+                new ImageProcessingOptions(
+                        url,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
 
-                verify(downloadService).download(url);
-        }
+        ProcessedImage actual =
+                service.process(options);
 
-        @Test
-        void shouldResizeImageWhenDimensionsProvided() {
+        assertSame(expected, actual);
 
-                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+        verify(downloadService).download(url);
+    }
 
-                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+    @Test
+    void shouldResizeImageWhenDimensionsProvided() {
 
-                ImageProcessingService service = new ImageProcessingService(
-                                downloadService,
-                                imageProcessor);
+        ImageDownloadService downloadService =
+                mock(ImageDownloadService.class);
 
-                String url = "https://example.com/image.jpg";
+        ImageProcessor imageProcessor =
+                mock(ImageProcessor.class);
 
-                ProcessedImage original = new ProcessedImage(
-                                new byte[] { 1, 2, 3 },
-                                "image/jpeg");
+        ImageProcessingService service =
+                new ImageProcessingService(
+                        downloadService,
+                        imageProcessor);
 
-                ProcessedImage resized = new ProcessedImage(
-                                new byte[] { 4, 5, 6 },
-                                "image/jpeg");
+        String url = "https://example.com/image.jpg";
 
-                when(downloadService.download(url))
-                                .thenReturn(original);
+        ProcessedImage original =
+                new ProcessedImage(
+                        new byte[]{1, 2, 3},
+                        "image/jpeg");
 
-                when(imageProcessor.process(
-                                original, 500, 300, url, url, null))
-                                .thenReturn(resized);
+        ProcessedImage resized =
+                new ProcessedImage(
+                        new byte[]{4, 5, 6},
+                        "image/jpeg");
 
-                ImageProcessingOptions ipo = new ImageProcessingOptions(url, 500, 300, null, null, null);
+        when(downloadService.download(url))
+                .thenReturn(original);
 
-                ProcessedImage actual = service.process(ipo);
+        when(imageProcessor.process(
+                original,
+                500,
+                300,
+                null,
+                null,
+                null))
+                .thenReturn(resized);
 
-                assertSame(resized, actual);
+        ImageProcessingOptions options =
+                new ImageProcessingOptions(
+                        url,
+                        500,
+                        300,
+                        null,
+                        null,
+                        null);
 
-                verify(downloadService).download(url);
+        ProcessedImage actual =
+                service.process(options);
 
-                verify(imageProcessor)
-                                .process(original, 500, 300, url, url, null);
-        }
+        assertSame(resized, actual);
 
-        @Test
-        void shouldResizeAndCropWhenCropIsFill() {
+        verify(downloadService).download(url);
 
-                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+        verify(imageProcessor).process(
+                original,
+                500,
+                300,
+                null,
+                null,
+                null);
+    }
 
-                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+    @Test
+    void shouldResizeAndCropWhenCropIsFill() {
 
-                ImageProcessingService service = new ImageProcessingService(
-                                downloadService,
-                                imageProcessor);
+        ImageDownloadService downloadService =
+                mock(ImageDownloadService.class);
 
-                String url = "https://example.com/image.jpg";
+        ImageProcessor imageProcessor =
+                mock(ImageProcessor.class);
 
-                ProcessedImage original = new ProcessedImage(
-                                new byte[] { 1, 2, 3 },
-                                "image/jpeg");
+        ImageProcessingService service =
+                new ImageProcessingService(
+                        downloadService,
+                        imageProcessor);
 
-                ProcessedImage cropped = new ProcessedImage(
-                                new byte[] { 4, 5, 6 },
-                                "image/jpeg");
+        String url = "https://example.com/image.jpg";
 
-                when(downloadService.download(url))
-                                .thenReturn(original);
+        ProcessedImage original =
+                new ProcessedImage(
+                        new byte[]{1, 2, 3},
+                        "image/jpeg");
 
-                when(imageProcessor.process(
-                                original,
-                                500,
-                                300, url, url, null))
-                                .thenReturn(cropped);
+        ProcessedImage cropped =
+                new ProcessedImage(
+                        new byte[]{4, 5, 6},
+                        "image/jpeg");
 
-                ImageProcessingOptions options = new ImageProcessingOptions(
-                                url,
-                                500,
-                                300,
-                                "fill", null, null);
+        when(downloadService.download(url))
+                .thenReturn(original);
 
-                ProcessedImage actual = service.process(options);
+        when(imageProcessor.process(
+                original,
+                500,
+                300,
+                "fill",
+                null,
+                null))
+                .thenReturn(cropped);
 
-                assertSame(cropped, actual);
+        ImageProcessingOptions options =
+                new ImageProcessingOptions(
+                        url,
+                        500,
+                        300,
+                        "fill",
+                        null,
+                        null);
 
-                verify(imageProcessor)
-                                .process(original, 500, 300, url, url, null);
-        }
+        ProcessedImage actual =
+                service.process(options);
 
-        @Test
-        void shouldConvertImageFormat() {
+        assertSame(cropped, actual);
 
-                ImageDownloadService downloadService = mock(ImageDownloadService.class);
+        verify(downloadService).download(url);
 
-                ImageProcessor imageProcessor = mock(ImageProcessor.class);
+        verify(imageProcessor).process(
+                original,
+                500,
+                300,
+                "fill",
+                null,
+                null);
+    }
 
-                ImageProcessingService service = new ImageProcessingService(
-                                downloadService,
-                                imageProcessor);
+    @Test
+    void shouldConvertImageFormat() {
 
-                String url = "https://example.com/image.png";
+        ImageDownloadService downloadService =
+                mock(ImageDownloadService.class);
 
-                ProcessedImage original = new ProcessedImage(
-                                new byte[] { 1, 2, 3 },
-                                "image/png");
+        ImageProcessor imageProcessor =
+                mock(ImageProcessor.class);
 
-                ProcessedImage converted = new ProcessedImage(
-                                new byte[] { 4, 5, 6 },
-                                "image/jpeg");
+        ImageProcessingService service =
+                new ImageProcessingService(
+                        downloadService,
+                        imageProcessor);
 
-                when(downloadService.download(url))
-                                .thenReturn(original);
+        String url = "https://example.com/image.png";
 
-                when(imageProcessor.process(
-                                original,
-                                null,
-                                null,
-                                null,
-                                "jpeg",
-                                80))
-                                .thenReturn(converted);
+        ProcessedImage original =
+                new ProcessedImage(
+                        new byte[]{1, 2, 3},
+                        "image/png");
 
-                ImageProcessingOptions options = new ImageProcessingOptions(
-                                url,
-                                null,
-                                null,
-                                null,
-                                "jpeg",
-                                80);
+        ProcessedImage converted =
+                new ProcessedImage(
+                        new byte[]{4, 5, 6},
+                        "image/jpeg");
 
-                ProcessedImage actual = service.process(options);
+        when(downloadService.download(url))
+                .thenReturn(original);
 
-                assertSame(converted, actual);
+        when(imageProcessor.process(
+                original,
+                null,
+                null,
+                null,
+                "jpeg",
+                80))
+                .thenReturn(converted);
 
-                verify(imageProcessor).process(
-                                original,
-                                null,
-                                null,
-                                null,
-                                "jpeg",
-                                80);
-        }
+        ImageProcessingOptions options =
+                new ImageProcessingOptions(
+                        url,
+                        null,
+                        null,
+                        null,
+                        "jpeg",
+                        80);
+
+        ProcessedImage actual =
+                service.process(options);
+
+        assertSame(converted, actual);
+
+        verify(downloadService).download(url);
+
+        verify(imageProcessor).process(
+                original,
+                null,
+                null,
+                null,
+                "jpeg",
+                80);
+    }
 }
