@@ -1,6 +1,8 @@
-package com.oursprivacy.imageprocessing.service;
+package com.oursprivacy.imageprocessing;
 
 import com.oursprivacy.imageprocessing.model.ProcessedImage;
+import com.oursprivacy.imageprocessing.service.ImageProcessor;
+
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
